@@ -11,17 +11,21 @@ import scala.xml.pull.XMLEventReader
 
 object ConverterRunner {
 
-  def main(args: Array[String]) {
-    def bz2Reader(filePath: String) = new BZip2CompressorInputStream(
-      new BufferedInputStream(new FileInputStream(filePath), 32768 * 100))
+  private val devInputOutput = ( "/media/3tb/data/datasets/enwiki-20150602-pages-articles.xml.bz2",
+    "/tmp/enwiki-20150602-pages-articles.json.bz2"
+    )
 
-    //config
-    val wikiFile = "/media/3tb/data/datasets/enwiki-20150602-pages-articles.xml.bz2"
-    val outputFile = "/tmp/enwiki-20150602-pages-articles.json.bz2"
+  def bz2Reader(filePath: String) = new BZip2CompressorInputStream(
+    new BufferedInputStream(new FileInputStream(filePath), 32768 * 100))
+
+  def main(args: Array[String]) {
+    val inputOutput = {
+      if(args.isEmpty) devInputOutput else (args(0), args(1))
+    }
 
     val pageParser = new PageParser()
-    val xmlReader = new XMLEventReader(Source.fromInputStream(bz2Reader(wikiFile)))
-    val jsonImporter = new JsonImporter(outputFile)
+    val xmlReader = new XMLEventReader(Source.fromInputStream(bz2Reader(inputOutput._1)))
+    val jsonImporter = new JsonImporter(inputOutput._2)
     var counter = 0
     pageParser.parse(xmlReader, wiki => {
       jsonImporter.insert(wiki)

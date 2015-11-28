@@ -8,7 +8,7 @@ import scala.io.Source
 class ParserTest extends FunSuite with BeforeAndAfter {
 
   test("parse wiki json") {
-    for (line <- Source.fromFile(getClass.getResource("/1000.json").getPath).getLines()) {
+    for (line <- Source.fromFile(getClass.getResource("/test_data/1000.json").getPath).getLines()) {
       val json = new JsonParser().parse(line).getAsJsonObject
       val text = json.getAsJsonObject("revision").get("text").getAsString
       val wikiLoader = new WikiLoader(line)

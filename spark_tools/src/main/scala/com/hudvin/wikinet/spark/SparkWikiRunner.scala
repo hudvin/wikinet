@@ -5,12 +5,16 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object SparkWikiRunner {
 
+  private val devInputOutput = ("/media/3tb/data/datasets/wiki/1000.json",
+    "/tmp/links_dir" )
+
   def main(args: Array[String]): Unit = {
     //configuration
     val master = "local[*]" // or "spark://sanctum:7077"
-    val outputDir = "/tmp/links_dir"
-    //val dumpFile = "/media/3tb/data/datasets/wiki/1000.json"
-    val dumpFile = getClass.getResource("/1000.json").getPath
+
+    val inputOutput = {
+      if(args.isEmpty) devInputOutput else (args(0), args(1))
+    }
 
     val conf = new SparkConf().setAppName("wiki")
     conf.setMaster(master)
@@ -18,7 +22,7 @@ object SparkWikiRunner {
     conf.set("spark.hadoop.validateOutputSpecs", "false")
     val sc = new SparkContext(conf)
 
-    val wikiFile = sc.textFile(dumpFile)
+    val wikiFile = sc.textFile(devInputOutput._1)
     val titles = wikiFile.flatMap(line => {
       val json = new JsonParser().parse(line).getAsJsonObject
       val text = json.getAsJsonObject("revision").get("text").getAsString
@@ -30,7 +34,7 @@ object SparkWikiRunner {
         links.map(link => "\"%s\"->\"%s\"".format(title, link))
       } else None
     })
-    titles.saveAsTextFile(outputDir)
+    titles.saveAsTextFile(devInputOutput._2)
   }
 
 }
