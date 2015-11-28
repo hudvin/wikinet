@@ -1,2 +1,1 @@
-include 'spark_tools','wiki_extractor'
-
+include 'spark_tools'
